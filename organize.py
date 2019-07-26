@@ -1,10 +1,13 @@
-import pandas as pd
-from tkinter import Tk, filedialog
 import os
 import shutil
+import datetime
+
 import tifffile as tf
 import numpy as np
-import datetime
+import pandas as pd
+
+from tkinter import Tk, filedialog
+
 
 
 def make_skeleton(chosen_folder, image_locations):
@@ -12,7 +15,6 @@ def make_skeleton(chosen_folder, image_locations):
 
     if len(image_locations) != len(os.listdir(chosen_folder)):
         raise Exception("Selected folder and Excel sheet do not match.")
-
 
     save_folder = os.path.join(os.path.dirname(chosen_folder), "Organized")
     if not os.path.exists(save_folder):
@@ -43,6 +45,7 @@ def make_skeleton(chosen_folder, image_locations):
             os.mkdir(section_folder)
 
     return save_folder
+
 
 def populate(chosen_folder, image_locations, save_folder):
     """Stores each stack image in its corresponding folder, according to the excel sheet. Renames all images to
@@ -100,6 +103,7 @@ def populate(chosen_folder, image_locations, save_folder):
 
 
 def save_mips(stack_folder, label):
+    """Uses numpy.max() to create maximum z intensity projections of stack images. Labels according to Leika format."""
 
     channels = ["ch00", "ch01", "ch02"]
     mip_folder = os.path.join(os.path.dirname(stack_folder), "MIP")
