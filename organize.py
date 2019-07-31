@@ -9,7 +9,6 @@ import pandas as pd
 from tkinter import Tk, filedialog
 
 
-
 def make_skeleton(chosen_folder, image_locations):
     """ Parses a list of excel rows, and constructs a multi-folder directory based on the mesoscale image storing structure"""
 
@@ -70,7 +69,7 @@ def populate(chosen_folder, image_locations, save_folder):
         label = str(list_path[0]) + "_" + str(list_path[1]) + "_" + str(list_path[2]) + "_" + str(list_path[3])
 
         destination_path = os.path.join(save_folder, str(list_path[0]), str(list_path[1]), str(list_path[2]) + "_" + str(list_path[3]))
-        shutil.move(os.path.join(chosen_folder, current_folder), destination_path)
+        shutil.copytree(os.path.join(chosen_folder, current_folder), destination_path)
 
         log_string += os.path.basename(current_folder) + "  ->  " + destination_path + "\n"
 
@@ -102,14 +101,22 @@ def populate(chosen_folder, image_locations, save_folder):
     return log_string
 
 
+def save_log(log, dir):
+    """Saves the log string as a dated .txt file"""
+
+    save_path = os.path.join(dir, datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + "_transfer_log.txt")
+    with open(save_path,'w') as f:
+        f.write(log)
+
+
 def save_mips(stack_folder, label):
     """Uses numpy.max() to create maximum z intensity projections of stack images. Labels according to Leika format."""
 
-    channels = ["ch00", "ch01", "ch02"]
     mip_folder = os.path.join(os.path.dirname(stack_folder), "MIP")
     if not os.path.exists(mip_folder):
         os.mkdir(mip_folder)
 
+    channels = ["ch00", "ch01", "ch02"]
     for ch in channels:
 
         stack = [tf.imread(os.path.join(stack_folder, f)) for f in os.listdir(stack_folder) if (ch in f)]
@@ -128,14 +135,6 @@ def save_mips(stack_folder, label):
         tf.imsave(os.path.join(mip_folder, filename), mip_img.astype(np.uint16))
 
 
-def save_log(log, dir):
-    """Saves the log string as a dated .txt file"""
-
-    save_path = os.path.join(dir, datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + "_transfer_log.txt")
-    with open(save_path,'w') as f:
-        f.write(log)
-
-
 def main():
     """ First selection made by user is a folder containing stack folders. Second selection is the corresponding excel sheet."""
 
@@ -147,7 +146,7 @@ def main():
     blueprint = pd.read_excel(blueprint_table, sheet_name='Sheet1')
     image_locations = blueprint.values.tolist()
 
-    save_folder = make_skeleton(chosen_folder, image_locations)
+    save_folder = make_skeleton(chosen_folder, image_locations) #image locations is a 2d list of specific image paths
     log = populate(chosen_folder, image_locations, save_folder)
     save_log(log, save_folder)
 
