@@ -1,3 +1,5 @@
+If you have any questions, I'm always available at jonahkohn@gmail.com :)
+
 # Olympus Multi-acquisition Setup
 
 ### Acquisition procedure:
